@@ -11,10 +11,17 @@ contract Ownable {
     //  1) create a private '_owner' variable of type address with a public getter function
     address private _owner;
 
-    function showOwner() public view returns (address){
+    //function showOwner() public view returns (address){
+    //    return _owner;
+   // }
+
+    function contractOwner() public view returns (address) {
         return _owner;
     }
 
+    function owner() public view returns(address){
+        return _owner;
+    }
     //  2) create an internal constructor that sets the _owner var to the creater of the contract
     constructor() internal {
         _owner = msg.sender;
@@ -31,10 +38,17 @@ contract Ownable {
     //  4) fill out the transferOwnership function
     function transferOwnership(address newOwner) public onlyOwner {
         // TODO add functionality to transfer control of the contract to a newOwner.
-        require(newOwner != address(0), "Address is invalid.");
-        _owner = newOwner;
-         emit ownershipTransferred(_owner, newOwner);
+        //require(newOwner != address(0), "Address is invalid.");
+        //_owner = newOwner;
+        // emit ownershipTransferred(_owner, newOwner);
         // make sure the new owner is a real address
+
+        require(newOwner != _owner, "Can only transfer to a different owner");
+        require(newOwner != address(0), "New owner address is not valid");
+        _owner = newOwner;
+        emit ownershipTransferred(_owner, newOwner);
+
+
     }
 
     //  5) create an event that emits anytime ownerShip is transfered (including in the constructor)
@@ -168,13 +182,18 @@ contract ERC721 is Pausable, ERC165 {
 //    @dev Approves another address to transfer the given token ID
     function approve(address _to, uint256 _tokenId) public {
         // TODO require the given address to not be the owner of the tokenId
-        require(_to != ownerOf(_tokenId), "Must be the contract Owner");
+        //require(_to != ownerOf(_tokenId), "Must be the contract Owner");
+        address ownerOfToken = ownerOf(_tokenId);
+        require(_to != ownerOfToken, "The transfer to address cannot be the owner of the given tokenId");
 
         // TODO require the msg sender to be the owner of the contract or isApprovedForAll() to be true
-        require(msg.sender == showOwner() || isApprovedForAll(ownerOf(_tokenId),_to) == true, "Cannot send token to yourself.");
+       // require(msg.sender == contractOwner() || isApprovedForAll(ownerOf(_tokenId),_to) == true, "Cannot send token to yourself.");
+        address contractOwner = contractOwner();
+        require(msg.sender == contractOwner || isApprovedForAll(ownerOfToken, msg.sender), "Operator is not valid to approve");
 
         // TODO add 'to' address to token approvals
-        _operatorApprovals[ownerOf(_tokenId)][_to] = true;
+        //_operatorApprovals[ownerOf(_tokenId)][_to] = true;
+        _tokenApprovals[_tokenId] = _to;
 
         // TODO emit Approval Event
         emit Approval(ownerOf(_tokenId),_to, _tokenId);
@@ -182,9 +201,7 @@ contract ERC721 is Pausable, ERC165 {
 
     function getApproved(uint256 tokenId) public view returns (address) {
         // TODO return token approval if it exists
-        if(_tokenApprovals[tokenId] != address(0)) {
-            return _tokenApprovals[tokenId];
-        }
+        return _tokenApprovals[tokenId];
     }
 
     /**
@@ -252,7 +269,8 @@ contract ERC721 is Pausable, ERC165 {
 
         // TODO revert if given tokenId already exists or given address is invalid
         require(to != address(0),"Must be valid address");
-        require(_exists(tokenId) == false, "Token ID must not already exist");
+        //require(_exists(tokenId) == false, "Token ID must not already exist");
+        require(!_exists(tokenId), "Token already exists!");
 
         // TODO mint tokenId to given address & increase token count of owner
         _tokenOwner[tokenId] = to;
@@ -267,15 +285,23 @@ contract ERC721 is Pausable, ERC165 {
     function _transferFrom(address from, address to, uint256 tokenId) internal {
 
         // TODO: require from address is the owner of the given token
-        require(from == _tokenOwner[tokenId], "From address is not owner.");
+        //require(from == _tokenOwner[tokenId], "From address is not owner.");
+
+        require(from == ownerOf(tokenId), "Not from the owner of the given token");
+
         // TODO: require token is being transfered to valid address
-        require(to != address(0),"From address is not valid.");
+       // require(to != address(0),"From address is not valid.");
+        require(to != address(0), "The transferring to address is invalid");
+
         // TODO: clear approval
         _clearApproval(tokenId);
+
         // TODO: update token counts & transfer ownership of the token ID
-        _ownedTokensCount[to].increment();
         _ownedTokensCount[from].decrement();
-        transferFrom(from, to, tokenId);
+        _ownedTokensCount[to].increment();
+        //transferFrom(from, to, tokenId);
+        _tokenOwner[tokenId] = to;
+
         // TODO: emit correct event
         emit ownershipTransferred(from, to);
     }
@@ -509,15 +535,15 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     }
 
     // TODO: create external getter functions for name, symbol, and baseTokenURI
-    function name() public view returns (string memory) {
+    function name() external view returns (string memory) {
         return _name;
     }
 
-    function symbol() public view returns (string memory) {
+    function symbol() external view returns (string memory) {
         return _symbol;
     }
 
-    function showbaseTokenURI() public view returns (string memory) {
+    function baseTokenURI() external view returns (string memory) {
         return _baseTokenURI;
     }
 
@@ -535,9 +561,12 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
     function setTokenURI(uint256 tokenId) internal returns (string memory) {
         require(_exists(tokenId));
       //  return _tokenURIs[tokenId];
-        string memory _temp_tokenId = uint2str(tokenId);
-        string memory tokenURI_temp = strConcat(_baseTokenURI, _temp_tokenId);
-        _tokenURIs[tokenId] = tokenURI_temp;
+       // string memory _temp_tokenId = uint2str(tokenId);
+      //  string memory tokenURI_temp = strConcat(_baseTokenURI, _temp_tokenId);
+       // _tokenURIs[tokenId] = tokenURI_temp;
+
+        require(_exists(tokenId),"require the token exists before setting");
+        _tokenURIs[tokenId] = strConcat(_baseTokenURI,uint2str(tokenId));
 
     }
 
