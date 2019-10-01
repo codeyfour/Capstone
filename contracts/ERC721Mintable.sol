@@ -270,7 +270,7 @@ contract ERC721 is Pausable, ERC165 {
         // TODO revert if given tokenId already exists or given address is invalid
         require(to != address(0),"Must be valid address");
         //require(_exists(tokenId) == false, "Token ID must not already exist");
-        require(!_exists(tokenId), "Token already exists!");
+        require(_exists(tokenId) != true, "This token already exists");
 
         // TODO mint tokenId to given address & increase token count of owner
         _tokenOwner[tokenId] = to;
@@ -287,7 +287,7 @@ contract ERC721 is Pausable, ERC165 {
         // TODO: require from address is the owner of the given token
         //require(from == _tokenOwner[tokenId], "From address is not owner.");
 
-        require(from == ownerOf(tokenId), "Not from the owner of the given token");
+        require(_isApprovedOrOwner(msg.sender, tokenId), "Token transfer is not allowed");
 
         // TODO: require token is being transfered to valid address
        // require(to != address(0),"From address is not valid.");
@@ -565,7 +565,7 @@ contract ERC721Metadata is ERC721Enumerable, usingOraclize {
       //  string memory tokenURI_temp = strConcat(_baseTokenURI, _temp_tokenId);
        // _tokenURIs[tokenId] = tokenURI_temp;
 
-        require(_exists(tokenId),"require the token exists before setting");
+        require(_exists(tokenId) == true,"require the token exists before setting");
         _tokenURIs[tokenId] = strConcat(_baseTokenURI,uint2str(tokenId));
 
     }
