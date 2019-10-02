@@ -25,7 +25,7 @@ contract Ownable {
     //  2) create an internal constructor that sets the _owner var to the creater of the contract
     constructor() internal {
         _owner = msg.sender;
-        emit ownershipTransferred(_owner, _owner);
+        emit OwnershipTransferred(_owner);
     }
 
     //  3) create an 'onlyOwner' modifier that throws if called by any account other than the owner.
@@ -46,13 +46,13 @@ contract Ownable {
         require(newOwner != _owner, "Can only transfer to a different owner");
         require(newOwner != address(0), "New owner address is not valid");
         _owner = newOwner;
-        emit ownershipTransferred(_owner, newOwner);
+        emit OwnershipTransferred(_owner);
 
 
     }
 
     //  5) create an event that emits anytime ownerShip is transfered (including in the constructor)
-    event ownershipTransferred(address oldOwner, address newOwner);
+    event OwnershipTransferred(address oldOwner);
 
 }
 
@@ -188,15 +188,15 @@ contract ERC721 is Pausable, ERC165 {
 
         // TODO require the msg sender to be the owner of the contract or isApprovedForAll() to be true
        // require(msg.sender == contractOwner() || isApprovedForAll(ownerOf(_tokenId),_to) == true, "Cannot send token to yourself.");
-        address contractOwner = contractOwner();
-        require(msg.sender == contractOwner || isApprovedForAll(ownerOfToken, msg.sender), "Operator is not valid to approve");
+        
+        require(msg.sender == ownerOfToken || isApprovedForAll(ownerOfToken, msg.sender), "Operator is not valid to approve");
 
         // TODO add 'to' address to token approvals
         //_operatorApprovals[ownerOf(_tokenId)][_to] = true;
         _tokenApprovals[_tokenId] = _to;
 
         // TODO emit Approval Event
-        emit Approval(ownerOf(_tokenId),_to, _tokenId);
+        emit Approval(ownerOfToken,_to, _tokenId);
     }
 
     function getApproved(uint256 tokenId) public view returns (address) {
@@ -277,7 +277,7 @@ contract ERC721 is Pausable, ERC165 {
         _ownedTokensCount[to].increment();
 
         // TODO emit Transfer event
-        emit ownershipTransferred(to, to);
+        emit Transfer(address(0), to, tokenId);
     }
 
     // @dev Internal function to transfer ownership of a given token ID to another address.
@@ -303,7 +303,7 @@ contract ERC721 is Pausable, ERC165 {
         _tokenOwner[tokenId] = to;
 
         // TODO: emit correct event
-        emit ownershipTransferred(from, to);
+        emit Transfer(address(0), to, tokenId);
     }
 
     /**
