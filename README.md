@@ -3,11 +3,13 @@
 The capstone will build upon the knowledge you have gained in the course in order to build a decentralized housing product. 
 
 # Project Resources
-Contract address : 0xFeF1e76bAd1De9d6b0CD08CeC1aEAF0c5522716f
+SolnSquareVerifier : 0xa48b71201408d302D2BEF92a4C0426C5D0caD761
+SquareVerifier : 0xEC20612a8bb905e24f3c95A76Ec217B0794C6d2E
+RealEstate_Token : 0xe8a776B96433282c148C5f9a65eE1e287FAD9c68
 
 opensea storefront : https://rinkeby.opensea.io/storefront/property-asset-token-9
-Owner (token seller) address: 0xf3e923CFB0568B640E1BDb8b00213268cEa9320f
-Buyer address on opensea: 0x72E5EF7E909D773eD809ec7E3497d7612014D17d 
+Owner of Token : 0xf3e923CFB0568B640E1BDb8b00213268cEa9320f
+Buyer of Token : 0x72E5EF7E909D773eD809ec7E3497d7612014D17d 
 
 # Project Resources
 
@@ -31,6 +33,9 @@ infuraKey = "4e795d03bf8340ab8144de8586248530";
 mnomic = shove clay surge custom raw spin person hip employ ride begin flavor
 
 # Contract ABI
+
+# Test Code
+Go to the root of the directory within shell and type 'truffle test'.  All tests will then begin, for each of the 3 contracts.
 
 [
     {
